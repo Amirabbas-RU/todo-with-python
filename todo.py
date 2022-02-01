@@ -7,20 +7,27 @@ import pickle
 from tkcalendar import Calendar
 from time import strftime
 
+BG_COLOR = "#282a36"
+FG_PINK = "#ff79c6"
+FG_GREEN = "#50fa7b"
+FG_YELLOW = "#f1fa8c"
+FG_WHITE = "white"
+ALERT_FILE = "alert.mp3"
+
 class ToDoApp:
     def __init__(self, root, data_file="tasks.pkl"):
         self.root = root
         self.root.title("To-Do List App")
-        self.root.configure(background="#282a36")
+        self.root.configure(background=BG_COLOR)
 
         self.data_file = data_file
         self.tasks = []
         self.load_tasks()
 
-        self.current_date_label = tk.Label(root, text="Current Date & Time:", background="#282a36", foreground="#ff79c6", font=('calibri', 20, 'bold'))
+        self.current_date_label = tk.Label(root, text="Current Date & Time:", background=BG_COLOR, foreground=FG_PINK, font=('calibri', 20, 'bold'))
         self.current_date_label.pack()
 
-        self.clock_label = tk.Label(root, font=('calibri', 12, 'bold'), background='purple', foreground='white')
+        self.clock_label = tk.Label(root, font=('calibri', 12, 'bold'), background='purple', foreground=FG_WHITE)
         self.clock_label.pack(anchor='n', pady=10)
 
         self.update_clock()
@@ -28,37 +35,37 @@ class ToDoApp:
         self.current_date = datetime.now().date()
         self.date_text = tk.StringVar()
         self.date_text.set(self.current_date.strftime("%Y-%m-%d"))
-        self.date_label = tk.Label(root, textvariable=self.date_text, foreground="#50fa7b", background="#282a36", font=('calibri', 12, 'bold'))
+        self.date_label = tk.Label(root, textvariable=self.date_text, foreground=FG_GREEN, background=BG_COLOR, font=('calibri', 12, 'bold'))
         self.date_label.pack()
 
-        self.calendar_label = tk.Label(root, text="Select Date:", background="#282a36", foreground="#ff79c6", font=('calibri', 15, 'bold'))
+        self.calendar_label = tk.Label(root, text="Select Date:", background=BG_COLOR, foreground=FG_PINK, font=('calibri', 15, 'bold'))
         self.calendar_label.pack()
 
         self.date_picker = Calendar(root, selectmode='day', date_pattern='yyyy-mm-dd')
         self.date_picker.pack()
 
-        self.entry_frame = tk.Frame(root, background="#282a36")
+        self.entry_frame = tk.Frame(root, background=BG_COLOR)
         self.entry_frame.pack()
 
-        self.task_label = tk.Label(self.entry_frame, text="Task:", background="#282a36", foreground="#f1fa8c", font=('calibri', 12, 'bold'))
+        self.task_label = tk.Label(self.entry_frame, text="Task:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.task_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.task_entry = tk.Entry(self.entry_frame)
         self.task_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
-        self.hour_label = tk.Label(self.entry_frame, text="Hour:", background="#282a36", foreground="#f1fa8c", font=('calibri', 12, 'bold'))
+        self.hour_label = tk.Label(self.entry_frame, text="Hour:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.hour_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.hour_entry = ttk.Combobox(self.entry_frame, values=[str(i).zfill(2) for i in range(1, 13)])
         self.hour_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
-        self.minute_label = tk.Label(self.entry_frame, text="Minute:", background="#282a36", foreground="#f1fa8c", font=('calibri', 12, 'bold'))
+        self.minute_label = tk.Label(self.entry_frame, text="Minute:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.minute_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.minute_entry = ttk.Combobox(self.entry_frame, values=[str(i).zfill(2) for i in range(60)])
         self.minute_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
-        self.am_pm_label = tk.Label(self.entry_frame, text="AM/PM:", background="#282a36", foreground="#f1fa8c", font=('calibri', 12, 'bold'))
+        self.am_pm_label = tk.Label(self.entry_frame, text="AM/PM:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.am_pm_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.am_pm_var = tk.StringVar()
@@ -69,7 +76,7 @@ class ToDoApp:
         self.task_listbox = tk.Listbox(root, font=("Helvetica", 14), height=10, width=70)
         self.task_listbox.pack()
 
-        self.button_frame = tk.Frame(root, background="#282a36")
+        self.button_frame = tk.Frame(root, background=BG_COLOR)
         self.button_frame.pack()
 
         self.add_button = tk.Button(self.button_frame, text="Add Task", command=self.add_task, bg="lightblue")
@@ -195,7 +202,7 @@ class ToDoApp:
                     if task not in tasks_to_remove:
                         tasks_to_remove.append(task)
                         pygame.mixer.init()
-                        sound = pygame.mixer.Sound('alert.mp3')
+                        sound = pygame.mixer.Sound(ALERT_FILE)
                         sound.play()
                         messagebox.showinfo("Task Reminder", f"It's time to start '{task}'!")
 
