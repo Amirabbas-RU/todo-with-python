@@ -119,6 +119,20 @@ class ToDoApp:
         for task, time_obj, date_obj in self.tasks:
             self.task_listbox.insert(tk.END, f"{task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
 
+    def validate_inputs(self, task, hour_str, minute_str, am_pm, selected_date):
+        errors = []
+        if not task or not task.strip():
+            errors.append("Task description is required.")
+        if not hour_str or not hour_str.isdigit() or not (1 <= int(hour_str) <= 12):
+            errors.append("Hour must be between 1 and 12.")
+        if not minute_str or not minute_str.isdigit() or not (0 <= int(minute_str) <= 59):
+            errors.append("Minute must be between 0 and 59.")
+        if am_pm not in ("AM", "PM"):
+            errors.append("Please select AM or PM.")
+        if not selected_date:
+            errors.append("Please select a date.")
+        return errors
+
     def add_task(self):
         task = self.task_entry.get()
         hour_str = self.hour_entry.get()
@@ -126,24 +140,26 @@ class ToDoApp:
         am_pm = self.am_pm_var.get()
         selected_date = self.date_picker.get_date()
 
-        if task and hour_str and minute_str and am_pm and selected_date:
-            try:
-                hour = int(hour_str) if am_pm == "AM" else int(hour_str) + 12
-                minute = int(minute_str)
-                time_obj = dt_time(hour, minute)
-                date_obj = selected_date
-                self.tasks.append((task, time_obj, date_obj))
-                self.save_tasks()
-                self.update_task_list()
-                self.task_entry.delete(0, tk.END)
-                self.hour_entry.set('')
-                self.minute_entry.set('')
-                self.am_pm_var.set("AM")
-                self.date_picker.set_date(self.current_date)
-            except ValueError:
-                messagebox.showerror("Error", "Invalid hour or minute.")
-        else:
-            messagebox.showerror("Error", "Please enter task, hour, minute, AM/PM, and date.")
+        errors = self.validate_inputs(task, hour_str, minute_str, am_pm, selected_date)
+        if errors:
+            messagebox.showerror("Validation Error", "\n".join(errors))
+            return
+
+        try:
+            hour = int(hour_str) if am_pm == "AM" else int(hour_str) + 12
+            minute = int(minute_str)
+            time_obj = dt_time(hour, minute)
+            date_obj = selected_date
+            self.tasks.append((task.strip(), time_obj, date_obj))
+            self.save_tasks()
+            self.update_task_list()
+            self.task_entry.delete(0, tk.END)
+            self.hour_entry.set('')
+            self.minute_entry.set('')
+            self.am_pm_var.set("AM")
+            self.date_picker.set_date(self.current_date)
+        except ValueError:
+            messagebox.showerror("Error", "Invalid hour or minute.")
 
     def clear_tasks(self):
         self.tasks = []
