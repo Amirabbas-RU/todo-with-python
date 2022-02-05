@@ -73,7 +73,15 @@ class ToDoApp:
         self.am_pm_entry = ttk.Combobox(self.entry_frame, values=["AM", "PM"], textvariable=self.am_pm_var)
         self.am_pm_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
-        self.task_listbox = tk.Listbox(root, font=("Helvetica", 14), height=10, width=70)
+        self.priority_label = tk.Label(self.entry_frame, text="Priority:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
+        self.priority_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
+
+        self.priority_var = tk.StringVar()
+        self.priority_var.set("Medium")
+        self.priority_entry = ttk.Combobox(self.entry_frame, values=["Low", "Medium", "High"], textvariable=self.priority_var)
+        self.priority_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
+
+        self.task_listbox = tk.Listbox(root, font=("Helvetica", 14), height=10, width=80)
         self.task_listbox.pack()
 
         self.button_frame = tk.Frame(root, background=BG_COLOR)
@@ -102,6 +110,7 @@ class ToDoApp:
         try:
             with open(self.data_file, "rb") as f:
                 self.tasks = pickle.load(f)
+            self.tasks = [t if len(t) == 4 else (*t, "Medium") for t in self.tasks]
         except FileNotFoundError:
             self.tasks = []
 
@@ -116,8 +125,9 @@ class ToDoApp:
 
     def update_task_list(self):
         self.task_listbox.delete(0, tk.END)
-        for task, time_obj, date_obj in self.tasks:
-            self.task_listbox.insert(tk.END, f"{task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
+        for task, time_obj, date_obj, priority in self.tasks:
+            priority_tag = f"[{priority}]" if priority else "[Medium]"
+            self.task_listbox.insert(tk.END, f"{priority_tag} {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
 
     def validate_inputs(self, task, hour_str, minute_str, am_pm, selected_date):
         errors = []
@@ -150,13 +160,15 @@ class ToDoApp:
             minute = int(minute_str)
             time_obj = dt_time(hour, minute)
             date_obj = selected_date
-            self.tasks.append((task.strip(), time_obj, date_obj))
+            priority = self.priority_var.get()
+            self.tasks.append((task.strip(), time_obj, date_obj, priority))
             self.save_tasks()
             self.update_task_list()
             self.task_entry.delete(0, tk.END)
             self.hour_entry.set('')
             self.minute_entry.set('')
             self.am_pm_var.set("AM")
+            self.priority_var.set("Medium")
             self.date_picker.set_date(self.current_date)
         except ValueError:
             messagebox.showerror("Error", "Invalid hour or minute.")
@@ -176,44 +188,49 @@ class ToDoApp:
 
     def edit_task(self):
         selected_index = self.task_listbox.curselection()
-        if selected_index:
-            index = selected_index[0]
-            if 0 <= index < len(self.tasks):
-                updated_task = self.task_entry.get()
-                updated_hour_str = self.hour_entry.get()
-                updated_minute_str = self.minute_entry.get()
-                updated_am_pm = self.am_pm_var.get()
-                updated_date = self.date_picker.get_date()
-
-                if updated_task and updated_hour_str and updated_minute_str and updated_am_pm and updated_date:
-                    try:
-                        updated_hour = int(updated_hour_str) if updated_am_pm == "AM" else int(updated_hour_str) + 12
-                        updated_minute = int(updated_minute_str)
-                        updated_time_obj = dt_time(updated_hour, updated_minute)
-                        updated_date_obj = updated_date
-                        self.tasks[index] = (updated_task, updated_time_obj, updated_date_obj)
-                        self.save_tasks()
-                        self.update_task_list()
-                        self.task_entry.delete(0, tk.END)
-                        self.hour_entry.set('')
-                        self.minute_entry.set('')
-                        self.am_pm_var.set("AM")
-                        self.date_picker.set_date(self.current_date)
-                    except ValueError:
-                        messagebox.showerror("Error", "Invalid hour or minute.")
-                else:
-                    messagebox.showerror("Error", "Please enter task, hour, minute, AM/PM, and date.")
-            else:
-                messagebox.showerror("Error", "Please select a valid task to edit.")
-        else:
+        if not selected_index:
             messagebox.showerror("Error", "Please select a task to edit.")
+            return
+        index = selected_index[0]
+        if index < 0 or index >= len(self.tasks):
+            messagebox.showerror("Error", "Please select a valid task to edit.")
+            return
+
+        updated_task = self.task_entry.get()
+        updated_hour_str = self.hour_entry.get()
+        updated_minute_str = self.minute_entry.get()
+        updated_am_pm = self.am_pm_var.get()
+        updated_date = self.date_picker.get_date()
+
+        errors = self.validate_inputs(updated_task, updated_hour_str, updated_minute_str, updated_am_pm, updated_date)
+        if errors:
+            messagebox.showerror("Validation Error", "\n".join(errors))
+            return
+
+        try:
+            updated_hour = int(updated_hour_str) if updated_am_pm == "AM" else int(updated_hour_str) + 12
+            updated_minute = int(updated_minute_str)
+            updated_time_obj = dt_time(updated_hour, updated_minute)
+            updated_date_obj = updated_date
+            updated_priority = self.priority_var.get()
+            self.tasks[index] = (updated_task.strip(), updated_time_obj, updated_date_obj, updated_priority)
+            self.save_tasks()
+            self.update_task_list()
+            self.task_entry.delete(0, tk.END)
+            self.hour_entry.set('')
+            self.minute_entry.set('')
+            self.am_pm_var.set("AM")
+            self.priority_var.set("Medium")
+            self.date_picker.set_date(self.current_date)
+        except ValueError:
+            messagebox.showerror("Error", "Invalid hour or minute.")
 
     def start_timer(self):
         def check_time():
             current_time = datetime.now().time()
             tasks_to_remove = []
 
-            for task, time_obj, _ in self.tasks:
+            for task, time_obj, _, _ in self.tasks:
                 if current_time >= time_obj:
                     if task not in tasks_to_remove:
                         tasks_to_remove.append(task)
@@ -222,7 +239,7 @@ class ToDoApp:
                         sound.play()
                         messagebox.showinfo("Task Reminder", f"It's time to start '{task}'!")
 
-            self.tasks = [(task, time_obj, date_obj) for task, time_obj, date_obj in self.tasks if task not in tasks_to_remove]
+            self.tasks = [(task, time_obj, date_obj, priority) for task, time_obj, date_obj, priority in self.tasks if task not in tasks_to_remove]
             self.root.after(60000, check_time)
 
         check_time()
