@@ -102,6 +102,16 @@ class ToDoApp:
         self.clear_button = tk.Button(self.button_frame, text="Clear Tasks", command=self.clear_tasks, bg="lightyellow")
         self.clear_button.pack(side=tk.LEFT, padx=10)
 
+        self.filter_frame = tk.Frame(root, background=BG_COLOR)
+        self.filter_frame.pack(pady=5)
+
+        self.filter_label = tk.Label(self.filter_frame, text="Search:", background=BG_COLOR, foreground=FG_PINK, font=('calibri', 12, 'bold'))
+        self.filter_label.pack(side=tk.LEFT, padx=5)
+
+        self.filter_entry = tk.Entry(self.filter_frame, width=30)
+        self.filter_entry.pack(side=tk.LEFT, padx=5)
+        self.filter_entry.bind("<KeyRelease>", self.filter_tasks)
+
         self.update_task_list()
 
         self.start_timer()
@@ -172,6 +182,14 @@ class ToDoApp:
             self.date_picker.set_date(self.current_date)
         except ValueError:
             messagebox.showerror("Error", "Invalid hour or minute.")
+
+    def filter_tasks(self, event=None):
+        query = self.filter_entry.get().lower()
+        self.task_listbox.delete(0, tk.END)
+        for task, time_obj, date_obj, priority in self.tasks:
+            display = f"[{priority}] {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}"
+            if not query or query in task.lower() or query in priority.lower() or query in date_obj:
+                self.task_listbox.insert(tk.END, display)
 
     def clear_tasks(self):
         self.tasks = []
