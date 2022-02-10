@@ -81,6 +81,9 @@ class ToDoApp:
         self.priority_entry = ttk.Combobox(self.entry_frame, values=["Low", "Medium", "High"], textvariable=self.priority_var)
         self.priority_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
+        self.complete_button = tk.Button(self.button_frame, text="Mark Complete", command=self.mark_complete, bg="lightgreen")
+        self.complete_button.pack(side=tk.LEFT, padx=10)
+
         self.task_listbox = tk.Listbox(root, font=("Helvetica", 14), height=10, width=80)
         self.task_listbox.pack()
 
@@ -120,7 +123,7 @@ class ToDoApp:
         try:
             with open(self.data_file, "rb") as f:
                 self.tasks = pickle.load(f)
-            self.tasks = [t if len(t) == 4 else (*t, "Medium") for t in self.tasks]
+            self.tasks = [t if len(t) == 5 else (*t, "Medium", False) if len(t) == 4 else (*t, False) for t in self.tasks]
         except FileNotFoundError:
             self.tasks = []
 
@@ -135,9 +138,10 @@ class ToDoApp:
 
     def update_task_list(self):
         self.task_listbox.delete(0, tk.END)
-        for task, time_obj, date_obj, priority in self.tasks:
+        for task, time_obj, date_obj, priority, completed in self.tasks:
+            status = "✓" if completed else "○"
             priority_tag = f"[{priority}]" if priority else "[Medium]"
-            self.task_listbox.insert(tk.END, f"{priority_tag} {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
+            self.task_listbox.insert(tk.END, f"{status} {priority_tag} {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
 
     def validate_inputs(self, task, hour_str, minute_str, am_pm, selected_date):
         errors = []
@@ -171,7 +175,7 @@ class ToDoApp:
             time_obj = dt_time(hour, minute)
             date_obj = selected_date
             priority = self.priority_var.get()
-            self.tasks.append((task.strip(), time_obj, date_obj, priority))
+            self.tasks.append((task.strip(), time_obj, date_obj, priority, False))
             self.save_tasks()
             self.update_task_list()
             self.task_entry.delete(0, tk.END)
@@ -186,10 +190,23 @@ class ToDoApp:
     def filter_tasks(self, event=None):
         query = self.filter_entry.get().lower()
         self.task_listbox.delete(0, tk.END)
-        for task, time_obj, date_obj, priority in self.tasks:
-            display = f"[{priority}] {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}"
+        for task, time_obj, date_obj, priority, completed in self.tasks:
+            status = "✓" if completed else "○"
+            display = f"{status} [{priority}] {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}"
             if not query or query in task.lower() or query in priority.lower() or query in date_obj:
                 self.task_listbox.insert(tk.END, display)
+
+    def mark_complete(self):
+        selected_index = self.task_listbox.curselection()
+        if not selected_index:
+            messagebox.showerror("Error", "Please select a task to mark.")
+            return
+        index = selected_index[0]
+        if 0 <= index < len(self.tasks):
+            task, time_obj, date_obj, priority, completed = self.tasks[index]
+            self.tasks[index] = (task, time_obj, date_obj, priority, not completed)
+            self.save_tasks()
+            self.update_task_list()
 
     def clear_tasks(self):
         self.tasks = []
@@ -231,7 +248,7 @@ class ToDoApp:
             updated_time_obj = dt_time(updated_hour, updated_minute)
             updated_date_obj = updated_date
             updated_priority = self.priority_var.get()
-            self.tasks[index] = (updated_task.strip(), updated_time_obj, updated_date_obj, updated_priority)
+            self.tasks[index] = (updated_task.strip(), updated_time_obj, updated_date_obj, updated_priority, False)
             self.save_tasks()
             self.update_task_list()
             self.task_entry.delete(0, tk.END)
@@ -257,7 +274,7 @@ class ToDoApp:
                         sound.play()
                         messagebox.showinfo("Task Reminder", f"It's time to start '{task}'!")
 
-            self.tasks = [(task, time_obj, date_obj, priority) for task, time_obj, date_obj, priority in self.tasks if task not in tasks_to_remove]
+            self.tasks = [(task, time_obj, date_obj, priority, completed) for task, time_obj, date_obj, priority, completed in self.tasks if task not in tasks_to_remove]
             self.root.after(60000, check_time)
 
         check_time()
