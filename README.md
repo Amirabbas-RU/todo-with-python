@@ -1,11 +1,31 @@
 
 ![Python Todo (2)](https://github.com/AmirabbasRouintan/todo-with-python/assets/110909074/2568b98f-f2ca-4232-99ca-47ffa89c7f3b)
 
+# To-Do List App
 
+A feature-rich to-do list application built with Python and Tkinter.
 
+## Features
 
-# **installation library** 
+- Add, edit, delete tasks with date and time
+- Set task priorities (Low, Medium, High)
+- Mark tasks as complete/incomplete
+- Search and filter tasks by keyword
+- Set reminders with sound alerts
+- Persistent task storage (pickle)
+- Keyboard shortcuts for quick actions
 
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| Enter | Add task |
+| Delete / D | Delete selected task |
+| E | Edit selected task |
+
+## Installation
+
+### Required Libraries
 
 ```python
 import tkinter as tk
@@ -17,62 +37,47 @@ from tkcalendar import Calendar
 from time import strftime
 ``` 
 
-
-
-## In linux 
-
+### Linux
 
 - **pygame :** `pip install pygame` **or** `sudo pacman -S python-pygame`
-
 - **tkcalendar :** `pip install tkcalendar`
 
+#### Install tkinter in Linux
 
- ### For install _tkinter_ in linux
+- For Debian-based Linux (such as Ubuntu, Debian, Pop!_OS):
+  `sudo apt-get install python3-tk`
 
-- For Debian-based Linux (such as Ubuntu, Debian, Pop!_OS), run the following command:
-`sudo apt-get install python3-tk`
+- For Arch-based Linux systems:
+  `sudo pacman -S tk`
 
-- For Arch-based Linux systems, run the following command:
-`sudo pacman -S tk`
+### Windows
 
-
-
-## In windows 
 - **pygame :** `pip install pygame` 
-
 - **tkcalendar :** `pip install tkcalendar`
 
- ### For install _tkinter_ in windows
+#### Install tkinter in Windows
 
+1. Download and install Python from: https://www.python.org/downloads/
+2. Check Tkinter installation: `python -m tkinter`
+3. Install via pip: `pip install tkinter`
 
-# Install Python
-Download and install the latest version of Python from the official website: https://www.python.org/downloads/
+## Usage
 
+Run the application:
 
-### Check Tkinter installation
-Open a command prompt and type the following command:
-`python -m tkinter
-`
-### Install ActivePython (optional)
-Download and install ActivePython from the official website: https://www.activestate.com/products/python/downloads/
+```bash
+python todo.py
+```
 
-###  Install Tkinter using pip
-Open a command prompt and type the following command:
-`pip install tkinter`
+## Change Alert Sound
 
+You can change the alert sound by replacing the `alert.mp3` file in the project directory.
 
-
-
----
-# You can change the alert 
-
->  In line **196**
+The sound file is referenced in the source code:
 
 ```python
 sound = pygame.mixer.Sound('alert.mp3')
-``` 
-
-
+```
 
 ![undraw_cat_epte](https://github.com/AmirabbasRouintan/todo-with-python/assets/110909074/62c6d96e-587e-4dd4-8829-0f04b3514441)
 
