@@ -52,6 +52,7 @@ class ToDoApp:
 
         self.task_entry = tk.Entry(self.entry_frame)
         self.task_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
+        self.task_entry.bind("<Return>", lambda e: self.add_task())
 
         self.hour_label = tk.Label(self.entry_frame, text="Hour:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.hour_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
@@ -98,9 +99,12 @@ class ToDoApp:
 
         self.edit_button = tk.Button(self.button_frame, text="Edit Task", command=self.edit_task, bg="orange")
         self.edit_button.pack(side=tk.LEFT, padx=10)
+        self.root.bind("<e>", lambda e: self.edit_task())
 
         self.delete_button = tk.Button(self.button_frame, text="Delete Task", command=self.delete_task, bg="lightcoral")
         self.delete_button.pack(side=tk.LEFT, padx=10)
+        self.root.bind("<Delete>", lambda e: self.delete_task())
+        self.root.bind("<d>", lambda e: self.delete_task())
 
         self.clear_button = tk.Button(self.button_frame, text="Clear Tasks", command=self.clear_tasks, bg="lightyellow")
         self.clear_button.pack(side=tk.LEFT, padx=10)
