@@ -119,6 +119,9 @@ class ToDoApp:
         self.filter_entry.pack(side=tk.LEFT, padx=5)
         self.filter_entry.bind("<KeyRelease>", self.filter_tasks)
 
+        self.task_counter = tk.Label(root, text="", background=BG_COLOR, foreground=FG_GREEN, font=('calibri', 10, 'bold'))
+        self.task_counter.pack()
+
         self.update_task_list()
 
         self.start_timer()
@@ -146,6 +149,9 @@ class ToDoApp:
             status = "✓" if completed else "○"
             priority_tag = f"[{priority}]" if priority else "[Medium]"
             self.task_listbox.insert(tk.END, f"{status} {priority_tag} {task} - {time_obj.strftime('%I:%M %p')} - {date_obj}")
+        total = len(self.tasks)
+        completed = sum(1 for t in self.tasks if t[4])
+        self.task_counter.config(text=f"Tasks: {total}  |  Completed: {completed}  |  Pending: {total - completed}")
 
     def validate_inputs(self, task, hour_str, minute_str, am_pm, selected_date):
         errors = []
