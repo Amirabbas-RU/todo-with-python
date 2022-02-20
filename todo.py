@@ -58,12 +58,14 @@ class ToDoApp:
         self.hour_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.hour_entry = ttk.Combobox(self.entry_frame, values=[str(i).zfill(2) for i in range(1, 13)])
+        self.hour_entry.set("09")
         self.hour_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
         self.minute_label = tk.Label(self.entry_frame, text="Minute:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
         self.minute_label.pack(side=tk.LEFT, padx=10, pady=5, anchor="e")
 
         self.minute_entry = ttk.Combobox(self.entry_frame, values=[str(i).zfill(2) for i in range(60)])
+        self.minute_entry.set("00")
         self.minute_entry.pack(side=tk.LEFT, padx=10, pady=5, anchor="w")
 
         self.am_pm_label = tk.Label(self.entry_frame, text="AM/PM:", background=BG_COLOR, foreground=FG_YELLOW, font=('calibri', 12, 'bold'))
@@ -219,17 +221,25 @@ class ToDoApp:
             self.update_task_list()
 
     def clear_tasks(self):
-        self.tasks = []
-        self.save_tasks()
-        self.update_task_list()
+        if not self.tasks:
+            return
+        confirm = messagebox.askyesno("Confirm", "Are you sure you want to clear all tasks?")
+        if confirm:
+            self.tasks = []
+            self.save_tasks()
+            self.update_task_list()
+            messagebox.showinfo("Done", "All tasks have been cleared.")
 
     def delete_task(self):
         selected_index = self.task_listbox.curselection()
         if selected_index:
             index = selected_index[0]
-            del self.tasks[index]
-            self.save_tasks()
-            self.update_task_list()
+            task_name = self.tasks[index][0]
+            confirm = messagebox.askyesno("Confirm", f"Delete task '{task_name}'?")
+            if confirm:
+                del self.tasks[index]
+                self.save_tasks()
+                self.update_task_list()
 
     def edit_task(self):
         selected_index = self.task_listbox.curselection()
