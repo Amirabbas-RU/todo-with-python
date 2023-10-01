@@ -205,7 +205,13 @@ class ToDoApp:
 def main():
     root = tk.Tk()
     app = ToDoApp(root)
-    root.mainloop()
+    try:
+        root.mainloop()
+    except KeyboardInterrupt:
+        # Closing the window with Ctrl+C should exit quietly instead of
+        # dumping a traceback onto the terminal.
+        app.save_tasks()
+        root.destroy()
 
 
 if __name__ == "__main__":
