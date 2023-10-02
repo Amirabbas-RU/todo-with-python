@@ -1,4 +1,5 @@
 import tkinter as tk
+import argparse
 import pygame
 from tkinter import messagebox, ttk
 from datetime import datetime, time as dt_time
@@ -7,11 +8,12 @@ from tkcalendar import Calendar
 from time import strftime
 
 class ToDoApp:
-    def __init__(self, root):
+    def __init__(self, root, data_file="tasks.pkl"):
         self.root = root
         self.root.title("To-Do List App")
         self.root.configure(background="#282a36")
 
+        self.data_file = data_file
         self.tasks = []
         self.load_tasks()
 
@@ -91,13 +93,13 @@ class ToDoApp:
 
     def load_tasks(self):
         try:
-            with open("tasks.pkl", "rb") as f:
+            with open(self.data_file, "rb") as f:
                 self.tasks = pickle.load(f)
         except FileNotFoundError:
             self.tasks = []
 
     def save_tasks(self):
-        with open("tasks.pkl", "wb") as f:
+        with open(self.data_file, "wb") as f:
             pickle.dump(self.tasks, f)
 
     def update_clock(self):
@@ -203,8 +205,18 @@ class ToDoApp:
         check_time()
 
 def main():
+    parser = argparse.ArgumentParser(
+        prog="todo.py",
+        description="A tkinter to-do list with timed reminders.",
+    )
+    parser.add_argument(
+        "-d", "--data-file", default="tasks.pkl",
+        help="path to the pickle file storing tasks (default: tasks.pkl)",
+    )
+    args = parser.parse_args()
+
     root = tk.Tk()
-    app = ToDoApp(root)
+    app = ToDoApp(root, data_file=args.data_file)
     try:
         root.mainloop()
     except KeyboardInterrupt:
