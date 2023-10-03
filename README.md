@@ -75,3 +75,30 @@ sound = pygame.mixer.Sound('alert.mp3')
 
 
 ![undraw_cat_epte](https://github.com/AmirabbasRouintan/todo-with-python/assets/110909074/62c6d96e-587e-4dd4-8829-0f04b3514441)
+
+---
+
+# Usage
+
+Run the app from the repository root:
+
+```bash
+python todo.py
+```
+
+## Command-line options
+
+| Option | Description |
+| --- | --- |
+| `-h`, `--help` | Show the usage message and exit. |
+| `-d`, `--data-file PATH` | Path to the pickle file used to store tasks. Defaults to `tasks.pkl`. |
+
+Point the app at a different file to keep separate task lists, or to keep
+your tasks outside the working directory:
+
+```bash
+python todo.py --data-file ~/tasks/work.pkl
+```
+
+Press `Ctrl+C` in the terminal to close the app; pending tasks are saved
+before the window exits.
