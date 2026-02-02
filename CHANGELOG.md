@@ -6,3 +6,4 @@
 # fix: save state on window close
 # docs: add screenshots to README
 # fix: handle file lock on Windows
+# fix: preserve sort order after edit
