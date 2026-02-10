@@ -8,3 +8,4 @@
 # fix: handle file lock on Windows
 # fix: preserve sort order after edit
 # feat: add due date support to tasks
+# refactor: move file I/O to separate module
