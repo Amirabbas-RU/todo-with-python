@@ -7,3 +7,4 @@
 # docs: add screenshots to README
 # fix: handle file lock on Windows
 # fix: preserve sort order after edit
+# feat: add due date support to tasks
