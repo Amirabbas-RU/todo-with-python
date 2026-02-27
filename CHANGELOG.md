@@ -4,3 +4,4 @@
 # fix: handle Unicode in task names
 # fix: handle empty list in search results
 # fix: save state on window close
+# docs: add screenshots to README
